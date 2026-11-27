@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Paneli | İş & Finans Pro</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #090d16; color: #e2e8f0; min-height: 100vh; }
+        nav { background: #111827; border-bottom: 1px solid #1f2937; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .badge { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.4); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; }
+        .nav-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-csv { background: #4f46e5; color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; transition: 0.2s; }
+        .btn-csv:hover { background: #4338ca; }
+        .btn-logout { color: #9ca3af; text-decoration: none; font-size: 0.85rem; }
+        .btn-logout:hover { color: #f87171; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .stat-card { background: #111827; border: 1px solid #1f2937; padding: 1.4rem; border-radius: 12px; }
+        .stat-card p { color: #9ca3af; font-size: 0.85rem; }
+        .stat-card h2 { font-size: 1.65rem; margin-top: 6px; }
+        .green { color: #34d399; }
+        .red { color: #fb7185; }
+        .blue { color: #38bdf8; }
+        .ai-box { background: linear-gradient(135deg, rgba(49,46,129,0.4), #111827); border: 1px solid rgba(99,102,241,0.4); padding: 1.5rem; border-radius: 12px; }
+        .ai-box h3 { color: #a5b4fc; font-size: 1rem; margin-bottom: 0.5rem; }
+        .ai-box p { color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; white-space: pre-line; }
+        .forms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .panel { background: #111827; border: 1px solid #1f2937; padding: 1.5rem; border-radius: 12px; }
+        .panel h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+        .form-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        input, select { width: 100%; padding: 0.65rem 0.85rem; background: #090d16; border: 1px solid #374151; border-radius: 8px; color: #f3f4f6; font-size: 0.88rem; outline: none; }
+        input:focus, select:focus { border-color: #34d399; }
+        .btn-submit { padding: 0.7rem; border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+        .bg-green { background: #10b981; } .bg-green:hover { background: #059669; }
+        .bg-blue { background: #0284c7; } .bg-blue:hover { background: #0369a1; }
+        .bar-wrap { margin-top: 1.5rem; }
+        .bar-bg { width: 100%; height: 22px; background: #1f2937; border-radius: 99px; overflow: hidden; display: flex; }
+        .bar-inc { background: #10b981; height: 100%; transition: 0.4s; }
+        .bar-exp { background: #f43f5e; height: 100%; transition: 0.4s; }
+        .legend { display: flex; justify-content: space-between; font-size: 0.82rem; color: #9ca3af; margin-top: 0.6rem; }
+        .table-wrap { background: #111827; border: 1px solid #1f2937; border-radius: 12px; overflow: hidden; }
+        .table-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid #1f2937; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left; }
+        th { background: #090d16; color: #9ca3af; padding: 0.85rem 1.5rem; font-weight: 600; }
+        td { padding: 0.9rem 1.5rem; border-bottom: 1px solid #1f2937; }
+        tr:hover { background: rgba(31,41,55,0.4); }
+        .tag { padding: 3px 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; }
+        .tag-inc { background: rgba(16,185,129,0.15); color: #34d399; }
+        .tag-exp { background: rgba(244,63,94,0.15); color: #fb7185; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand">
+            <span class="badge">PRO</span>
+            <h3>{{ user.company }}</h3>
+        </div>
+        <div class="nav-actions">
+            <a href="/export-csv" class="btn-csv">📥 CSV Rapor İndir</a>
+            <a href="/logout" class="btn-logout">Çıkış Yap</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><p>Toplam Gelir</p><h2 class="green">+{{ "%.2f"|format(total_income) }} ₺</h2></div>
+            <div class="stat-card"><p>Toplam Gider</p><h2 class="red">-{{ "%.2f"|format(total_expense) }} ₺</h2></div>
+            <div class="stat-card"><p>Net Kâr / Durum</p><h2 class="{{ 'green' if net_profit >= 0 else 'red' }}">{{ "%.2f"|format(net_profit) }} ₺</h2></div>
+            <div class="stat-card"><p>Aktif Müşteriler</p><h2 class="blue">{{ clients|length }} Müşteri</h2></div>
+        </div>
+
+        <div class="ai-box">
+            <h3>🤖 Gemini AI Finansal Analiz & Büyüme Danışmanı</h3>
+            <p>{{ ai_advice }}</p>
+        </div>
+
+        <div class="forms-grid">
+            <div class="panel">
+                <h3 class="green">Yeni Gelir / Gider Ekle</h3>
+                <form action="/add-transaction" method="post" class="form-stack">
+                    <div class="row-2">
+                        <select name="type"><option value="Gelir">Gelir (+)</option><option value="Gider">Gider (-)</option></select>
+                        <input type="date" name="date" value="{{ today }}" required>
+                    </div>
+                    <input type="text" name="category" required placeholder="Kategori (Örn: Yazılım Satışı, Sunucu)">
+                    <input type="number" step="0.01" min="0.01" name="amount" required placeholder="Tutar (TL)">
+                    <select name="client_id">
+                        <option value="">Müşteri Seçin (Opsiyonel)</option>
+                        {% for c in clients %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                    </select>
+                    <input type="text" name="description" placeholder="Kısa açıklama...">
+                    <button type="submit" class="btn-submit bg-green">İşlemi Kaydet</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h3 class="blue">Yeni Müşteri Ekle (CRM)</h3>
+                <form action="/add-client" method="post" class="form-stack">
+                    <input type="text" name="name" required placeholder="Müşteri Adı Soyadı">
+                    <input type="text" name="company" placeholder="Şirket / İşletme Adı">
+                    <input type="email" name="email" placeholder="E-posta Adresi">
+                    <input type="text" name="phone" placeholder="Telefon Numarası">
+                    <button type="submit" class="btn-submit bg-blue">Müşteriyi Kaydet</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h3>Gelir / Gider Oranı</h3>
+                {% set total_all = total_income + total_expense %}
+                {% set inc_pct = (total_income / total_all * 100) if total_all > 0 else 50 %}
+                {% set exp_pct = (total_expense / total_all * 100) if total_all > 0 else 50 %}
+                <div class="bar-wrap">
+                    <div class="bar-bg">
+                        <div class="bar-inc" style="width: {{ inc_pct }}%;"></div>
+                        <div class="bar-exp" style="width: {{ exp_pct }}%;"></div>
+                    </div>
+                    <div class="legend">
+                        <span class="green">● Gelir: %{{ "%.1f"|format(inc_pct) }}</span>
+                        <span class="red">● Gider: %{{ "%.1f"|format(exp_pct) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-header"><h3>Son Finansal Hareketler</h3></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Tür</th>
+                        <th>Kategori</th>
+                        <th>Müşteri</th>
+                        <th>Açıklama</th>
+                        <th style="text-align:right;">Tutar</th>
+                        <th style="text-align:right;">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td style="white-space:nowrap;">{{ t.date }}</td>
+                        <td><span class="tag {{ 'tag-inc' if t.type == 'Gelir' else 'tag-exp' }}">{{ t.type }}</span></td>
+                        <td><strong>{{ t.category }}</strong></td>
+                        <td>{{ t.client_name or '-' }}</td>
+                        <td>{{ t.description or '-' }}</td>
+                        <td style="text-align:right; white-space:nowrap;" class="{{ 'green' if t.type == 'Gelir' else 'red' }}">
+                            <strong>{{ '+' if t.type == 'Gelir' else '-' }}{{ "%.2f"|format(t.amount) }} ₺</strong>
+                        </td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <a href="/receipt/{{ t.id }}" style="color:#38bdf8; text-decoration:none; margin-right:12px; font-size:0.85rem;">🧾 Makbuz</a>
+                            <form action="/delete-transaction/{{ t.id }}" method="post" style="display:inline;" onsubmit="return confirm('Bu kaydı silmek istediğinize emin misiniz?')">
+                                <button type="submit" style="border:0; background:none; color:#fb7185; cursor:pointer; padding:0; font-size:0.85rem;">🗑️ Sil</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" style="text-align:center; color:#6b7280; padding:2rem;">Henüz kayıtlı bir işlem bulunmuyor.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

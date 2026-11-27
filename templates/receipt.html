@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Makbuz #{{ tx.id }} | {{ user.company }}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #e2e8f0; padding: 2rem; color: #1e293b; }
+        .sheet { max-width: 720px; margin: 0 auto; background: #fff; padding: 3rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+        .header h1 { color: #0f172a; font-size: 1.5rem; }
+        .meta { text-align: right; font-size: 0.9rem; color: #64748b; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .box h4 { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.4rem; }
+        .box p { font-size: 0.95rem; line-height: 1.5; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+        th { background: #f8fafc; text-align: left; padding: 0.85rem; border-bottom: 2px solid #cbd5e1; font-size: 0.85rem; }
+        td { padding: 1rem 0.85rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+        .total { text-align: right; font-size: 1.3rem; font-weight: 700; color: #059669; }
+        .actions { max-width: 720px; margin: 0 auto 1rem auto; display: flex; justify-content: space-between; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; }
+        .btn-print { background: #10b981; color: #fff; }
+        .btn-back { background: #334155; color: #fff; }
+        @media print { .actions { display: none; } body { background: #fff; padding: 0; } .sheet { box-shadow: none; } }
+    </style>
+</head>
+<body>
+    <div class="actions">
+        <a href="/" class="btn btn-back">← Panele Dön</a>
+        <button onclick="window.print()" class="btn btn-print">🖨️ Yazdır / PDF Olarak Kaydet</button>
+    </div>
+
+    <div class="sheet">
+        <div class="header">
+            <div>
+                <h1>{{ user.company }}</h1>
+                <p style="color:#64748b; font-size:0.85rem; margin-top:4px;">Hizmet & Finansal İşlem Dekontu</p>
+            </div>
+            <div class="meta">
+                <strong>Belge No:</strong> #ISL-{{ "%04d"|format(tx.id) }}<br>
+                <strong>Tarih:</strong> {{ tx.date }}
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="box">
+                <h4>Düzenleyen Firma</h4>
+                <p><strong>{{ user.company }}</strong><br>Kurumsal Yönetim Sistemi</p>
+            </div>
+            <div class="box">
+                <h4>Müşteri / İlgili Taraf</h4>
+                <p>
+                    <strong>{{ tx.client_name or 'Genel İşlem' }}</strong><br>
+                    {{ tx.client_company or '' }}<br>
+                    {{ tx.client_email or '' }} {{ tx.client_phone or '' }}
+                </p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr><th>Kategori / Hizmet</th><th>Açıklama</th><th>Tür</th><th style="text-align:right;">Tutar</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>{{ tx.category }}</strong></td>
+                    <td>{{ tx.description or 'Hizmet / Finansal İşlem Bedeli' }}</td>
+                    <td>{{ tx.type }}</td>
+                    <td style="text-align:right;">{{ "%.2f"|format(tx.amount) }} ₺</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total">Genel Toplam: {{ "%.2f"|format(tx.amount) }} ₺</div>
+    </div>
+</body>
+</html>
